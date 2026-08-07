@@ -3470,6 +3470,7 @@
       "shared_with_count": "{count, plural, one {Shared with 1 person} other {Shared with # people}}",
       "move_up": "Move up",
       "move_down": "Move down",
+      "default_calendar_for_new_events": "Default calendar for new events",
       "kind": "Contents",
       "kind_events": "Events",
       "kind_tasks": "Tasks",
