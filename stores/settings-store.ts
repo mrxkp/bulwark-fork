@@ -672,6 +672,7 @@ interface SettingsState extends AccessibilitySettings {
   vacationCalendarBlocks: Record<string, { start: string; end: string }>;
   /** Company calendars (organisation.calendars.feeds) the user hid, by feed id. */
   hiddenCompanyCalendars: string[];
+  defaultCalendarForNewEvents: string | undefined;
 
   // Calendar Tasks
   enableCalendarTasks: boolean;
@@ -999,6 +1000,8 @@ const DEFAULT_SETTINGS = {
   showWeekNumbers: false,
   calendarFreeScroll: true,
   calendarHoverPreview: 'delay-500ms' as CalendarHoverPreview,
+  defaultCalendarForNewEvents: undefined,
+
   calendarLimitHours: true,
   calendarDayStartHour: 8,
   calendarDayEndHour: 20,
@@ -1447,6 +1450,7 @@ export const useSettingsStore = create<SettingsState>()(
           showBirthdayCalendar: state.showBirthdayCalendar,
           birthdayCalendarColor: state.birthdayCalendarColor,
           sharedCalendarColors: state.sharedCalendarColors,
+          defaultCalendarForNewEvents: state.defaultCalendarForNewEvents,
           groupContactsByLetter: state.groupContactsByLetter,
           sortContactsByLastName: state.sortContactsByLastName,
           showContactsDirectory: state.showContactsDirectory,
