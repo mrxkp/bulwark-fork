@@ -367,6 +367,7 @@ interface SettingsState {
   showTimeInMonthView: boolean;
   showWeekNumbers: boolean;
   calendarHoverPreview: CalendarHoverPreview;
+  defaultCalendarForNewEvents: string | undefined;
 
   // Calendar Tasks
   enableCalendarTasks: boolean;
@@ -599,7 +600,8 @@ const DEFAULT_SETTINGS = {
   showTimeInMonthView: false,
   showWeekNumbers: false,
   calendarHoverPreview: 'delay-500ms' as CalendarHoverPreview,
-
+  defaultCalendarForNewEvents: undefined,
+  
   // Calendar Tasks
   enableCalendarTasks: false,
   showTasksOnCalendar: true,
@@ -824,6 +826,7 @@ export const useSettingsStore = create<SettingsState>()(
           showBirthdayCalendar: state.showBirthdayCalendar,
           birthdayCalendarColor: state.birthdayCalendarColor,
           sharedCalendarColors: state.sharedCalendarColors,
+          defaultCalendarForNewEvents: state.defaultCalendarForNewEvents,
           groupContactsByLetter: state.groupContactsByLetter,
           expandedFilterView: state.expandedFilterView,
           showTimeInMonthView: state.showTimeInMonthView,
