@@ -666,6 +666,7 @@ interface SettingsState extends AccessibilitySettings {
   calendarHideNonWorkingDays: boolean;
   /** Weekdays as `Date.getDay` numbers (0 = Sunday). */
   calendarWorkingDays: number[];
+  defaultCalendarForNewEvents: string | undefined;
   /** An out-of-office reply with dates puts a busy event in the calendar (lib/vacation-calendar.ts). */
   vacationBlockCalendar: boolean;
   /** The times of each account's out-of-office event as Bulwark last wrote them, by account id. */
