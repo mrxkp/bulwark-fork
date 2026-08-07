@@ -15,6 +15,8 @@ import { ContextMenu, ContextMenuItem, ContextMenuSeparator } from '@/components
 import { useContextMenu } from '@/hooks/use-context-menu';
 import { AlertListEditor } from '@/components/calendar/alert-list-editor';
 import { alertsToRows, rowsToAlerts, type AlertRow } from '@/lib/calendar-alerts';
+import { Plus, Pencil, Trash2, Calendar as CalendarIcon, Copy, Link, Upload, Globe, RefreshCw, Eraser, Users } from '@/components/icons';
+import {Select, SettingItem, SettingsSection} from './settings-section';
 import { ShareCollectionDialog } from './share-collection-dialog';
 import type { CalendarRights } from '@/lib/jmap/types';
 import { cn, formatDateTime, redactUrlCredentials } from '@/lib/utils';
@@ -299,7 +301,7 @@ export function CalendarManagementSettings() {
   const tImport = useTranslations('calendar.import');
   const tSub = useTranslations('calendar.subscription');
   const tConfirm = useTranslations('settings.calendar_management');
-  const timeFormat = useSettingsStore((s) => s.timeFormat);
+  const {timeFormat, defaultCalendarForNewEvents, updateSetting} = useSettingsStore();
   const sharedCalendarColors = useSettingsStore((s) => s.sharedCalendarColors);
   const setSharedCalendarColor = useSettingsStore((s) => s.setSharedCalendarColor);
   const colorPickerRef = useRef<HTMLDivElement>(null);
@@ -965,6 +967,26 @@ export function CalendarManagementSettings() {
         confirmText={tSub('unsubscribe')}
         variant="destructive"
       />
+
+      <SettingItem
+          label={t('default_calendar_for_new_events')}
+      >
+        <Select
+            value={defaultCalendarForNewEvents || calendars
+                .filter(cal => !isSubscriptionCalendar(cal.id))
+                .filter(cal => !managedAccountId || cal.accountId === managedAccountId)[0].id}
+            onChange={(value) => updateSetting('defaultCalendarForNewEvents', value as string)}
+            options={calendars
+                .filter(cal => !isSubscriptionCalendar(cal.id))
+                .filter(cal => !managedAccountId || cal.accountId === managedAccountId)
+                .map((cal) => {
+                  return {
+                    value: cal.id,
+                    label: cal.name
+                  }
+                })}
+        />
+      </SettingItem>
 
       {showImportModal && client && (
         <ICalImportModal

@@ -174,6 +174,7 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
   const sharedCalendarColors = useSettingsStore((s) => s.sharedCalendarColors);
   const setSharedCalendarColor = useSettingsStore((s) => s.setSharedCalendarColor);
   const removeSharedCalendarColor = useSettingsStore((s) => s.removeSharedCalendarColor);
+  const defaultCalendarForNewEvents = useSettingsStore((s) => s.defaultCalendarForNewEvents);
   const taskStore = useTaskStore();
   const fetchTasksFn = useTaskStore(state => state.fetchTasks);
   const toggleTaskCompleteFn = useTaskStore(state => state.toggleTaskComplete);
@@ -217,7 +218,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
   const [isProtocolAccountSwitching, setIsProtocolAccountSwitching] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<string | null>(null);
   const [sharingCalendarId, setSharingCalendarId] = useState<string | null>(null);
-  const [defaultCalendarIdForCreate, setDefaultCalendarIdForCreate] = useState<string | undefined>(undefined);
   const [showCreateCalendar, setShowCreateCalendar] = useState(false);
   const { dialogProps: confirmDialogProps, confirm: confirmAction } = useConfirmDialog();
   const tMgmt = useTranslations("calendar.management");
@@ -731,7 +731,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     setShowEventModal(false);
     setEditEvent(null);
     setPendingPreview(null);
-    setDefaultCalendarIdForCreate(undefined);
     setDefaultModalAllDay(false);
   }, []);
 
@@ -979,7 +978,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     setShowEventModal(false);
     setEditEvent(null);
     setPendingPreview(null);
-    setDefaultCalendarIdForCreate(undefined);
     setDefaultModalAllDay(false);
     setShowTaskModal(false);
     setEditTask(null);
@@ -1232,7 +1230,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     if (!quickDraft) return;
     const draft = quickDraft;
     openCreateModal(draft.start, draft.end, draft.allDay);
-    setDefaultCalendarIdForCreate(draft.calendarId || undefined);
     setDefaultModalTitle(draft.title || undefined);
   }, [quickDraft, openCreateModal]);
 
@@ -2162,7 +2159,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
               }}
               onShareCalendar={client ? (cal) => setSharingCalendarId(cal.id) : undefined}
               onCreateEvent={(cal: Calendar) => {
-                setDefaultCalendarIdForCreate(cal.id);
                 openCreateModal();
               }}
               onClearCalendar={client ? async (cal: Calendar) => {
@@ -2259,14 +2255,14 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
                 defaultAllDay={defaultModalAllDay}
                 defaultTitle={defaultModalTitle}
                 startInEditMode={modalStartsInEdit}
-                defaultCalendarId={defaultCalendarIdForCreate}
+                defaultCalendarId={defaultCalendarForNewEvents}
                 onSave={handleSaveEvent}
                 onDelete={handleDeleteEvent}
                 onDuplicate={handleDuplicateEvent}
                 onRsvp={handleRsvp}
                 onMore={editEvent ? (anchor) => openEventContextMenuFrom(anchor, editEvent, "end") : undefined}
                 onDirtyChange={setEventEditorDirty}
-                onClose={() => { setShowEventModal(false); setEditEvent(null); setPendingPreview(null); setDefaultCalendarIdForCreate(undefined); setDefaultModalAllDay(false); }}
+                onClose={() => { setShowEventModal(false); setEditEvent(null); setPendingPreview(null); setDefaultModalAllDay(false); }}
                 onPreviewChange={setPendingPreview}
                 currentUserEmails={currentUserEmails}
                 isSubscriptionCalendar={isSubscriptionCalendar}
@@ -2421,14 +2417,14 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
           defaultAllDay={defaultModalAllDay}
           defaultTitle={defaultModalTitle}
           startInEditMode={modalStartsInEdit}
-          defaultCalendarId={defaultCalendarIdForCreate}
+          defaultCalendarId={defaultCalendarForNewEvents}
           onSave={handleSaveEvent}
           onDelete={handleDeleteEvent}
           onDuplicate={handleDuplicateEvent}
           onRsvp={handleRsvp}
           onMore={editEvent ? (anchor) => openEventContextMenuFrom(anchor, editEvent, "end") : undefined}
           onDirtyChange={setEventEditorDirty}
-          onClose={() => { setShowEventModal(false); setEditEvent(null); setDefaultCalendarIdForCreate(undefined); setDefaultModalAllDay(false); }}
+          onClose={() => { setShowEventModal(false); setEditEvent(null); setDefaultModalAllDay(false); }}
           currentUserEmails={currentUserEmails}
           isSubscriptionCalendar={isSubscriptionCalendar}
           maxParticipants={maxParticipants}
