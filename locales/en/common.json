@@ -3436,6 +3436,7 @@
       "url_copied": "CalDAV URL copied to clipboard",
       "share": "Share calendar",
       "new_event_in_calendar": "New event in this calendar",
+      "default_calendar_for_new_events": "Default calendar for new events",
       "kind": "Contents",
       "kind_events": "Events",
       "kind_tasks": "Tasks",
