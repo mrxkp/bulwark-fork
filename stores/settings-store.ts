@@ -933,6 +933,7 @@ interface SettingsState extends AccessibilitySettings {
   calendarNarrowWeekAllDays: boolean;
   /** Weekdays as `Date.getDay` numbers (0 = Sunday). */
   calendarWorkingDays: number[];
+  defaultCalendarForNewEvents: string | undefined;
   /** An out-of-office reply with dates puts a busy event in the calendar (lib/vacation-calendar.ts). */
   vacationBlockCalendar: boolean;
   /** The times of each account's out-of-office event as Bulwark last wrote them, by account id. */
@@ -1306,6 +1307,8 @@ const DEFAULT_SETTINGS = {
   showWeekNumbers: false,
   calendarFreeScroll: true,
   calendarHoverPreview: 'delay-500ms' as CalendarHoverPreview,
+  defaultCalendarForNewEvents: undefined,
+
   calendarLimitHours: true,
   calendarDayStartHour: 8,
   calendarDayEndHour: 20,
@@ -1926,6 +1929,7 @@ export const useSettingsStore = create<SettingsState>()(
           showBirthdayCalendar: state.showBirthdayCalendar,
           birthdayCalendarColor: state.birthdayCalendarColor,
           sharedCalendarColors: state.sharedCalendarColors,
+          defaultCalendarForNewEvents: state.defaultCalendarForNewEvents,
           groupContactsByLetter: state.groupContactsByLetter,
           sortContactsByLastName: state.sortContactsByLastName,
           showContactsDirectory: state.showContactsDirectory,
