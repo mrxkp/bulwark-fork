@@ -1837,7 +1837,7 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
               <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                   type="text"
-                  placeholder={t("sidebar.search_placeholder_hint")}
+                  placeholder={t("sidebar.search_placeholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={cn("ps-9 h-9", searchQuery && "pe-8")}
