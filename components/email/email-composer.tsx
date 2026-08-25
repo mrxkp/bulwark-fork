@@ -33,6 +33,7 @@ import {
   ReplyAll,
   Reply,
   Forward,
+    Eye
 } from "@/components/icons";
 import { ComposerToolbarMenu, ComposerToolbarMenuItem, ComposerToolbarMenuCheckItem } from "@/components/email/composer-toolbar-menu";
 import { cn, formatFileSize, formatDateTime, generateUUID } from "@/lib/utils";
@@ -3599,17 +3600,16 @@ export function EmailComposer({
                     ) : (
                       <Paperclip className="w-3 h-3 flex-shrink-0" />
                     )}
-                    {canPreview ? (
-                      <button
-                        type="button"
-                        onClick={() => setPreviewAttachment(att)}
-                        title={att.name}
-                        className="flex items-center gap-2 min-w-0 hover:underline"
-                      >
-                        {label}
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-2 min-w-0">{label}</div>
+                    <div className="flex items-center gap-2 min-w-0">{label}</div>
+                    {canPreview && (
+                        <button
+                            type="button"
+                            onClick={() => setPreviewAttachment(att)}
+                            title={att.name}
+                            className="p-1 hover:bg-accent rounded transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-foreground" />
+                        </button>
                     )}
                     <button
                       onClick={() => removeAttachment(index)}

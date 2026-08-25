@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type TouchEvent as ReactTouchEvent } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Plus } from "@/components/icons";
+import { Plus, Search, X } from "@/components/icons";
 import {
   addMonths, subMonths, addWeeks, subWeeks, addDays, subDays,
   format, parseISO,
@@ -97,6 +97,8 @@ import { findMeetingLink } from "@/lib/event-links";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { MvTopBar } from "@/components/layout/mv-top-bar";
 import { useMountainViewShell } from "@/hooks/use-mountain-view-shell";
+import {Input} from "@/components/ui/input";
+import {isFilterEmpty} from "@/lib/jmap/search-utils";
 
 type PendingScopeAction =
   | { type: "edit"; event: CalendarEvent; updates: Partial<CalendarEvent>; sendScheduling?: boolean }
@@ -141,7 +143,10 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     fetchCalendars, fetchEvents, createEvent, updateEvent, deleteEvent, rsvpEvent,
     setSelectedDate, setViewMode, toggleCalendarVisibility, updateCalendar, shareCalendar,
     removeCalendar, clearCalendarEvents,
-    refreshAllSubscriptions, icalSubscriptions, isSubscriptionCalendar,
+    refreshAllSubscriptions, icalSubscriptions,
+    searchQuery,
+    setSearchQuery,
+    isSubscriptionCalendar,
   } = useCalendarStore();
   const calendarEnabled = usePolicyStore((s) => s.isFeatureEnabled('calendarEnabled'));
   const { firstDayOfWeek, timeFormat, showWeekNumbers, enableCalendarTasks, showTasksOnCalendar, calendarHoverPreview, showBirthdayCalendar, birthdayCalendarColor, updateSetting } = useSettingsStore();
@@ -275,6 +280,16 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
       toast.error(error);
     }
   }, [error]);
+
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleClearSearch = async () => {
+    setSearchQuery("");
+  };
+
 
   const getWebcalProtocolAccounts = useCallback(() => {
     const connectedClients = useAuthStore.getState().getAllConnectedClients();
@@ -493,7 +508,7 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     if (client && calendars.length > 0 && dateRange) {
       fetchEvents(client, dateRange.start, dateRange.end);
     }
-  }, [client, calendars.length, dateRange, fetchEvents, isEmbedded]);
+  }, [client, calendars.length, dateRange, fetchEvents, isEmbedded, searchQuery]);
 
   // Pro shell only: aggregate calendars and events from every connected
   // account so the sidebar lists them all (and the views render their
@@ -1795,6 +1810,28 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
             />
             <div className="flex-1 overflow-y-auto overflow-x-hidden py-3">
             <div className="px-3">
+            <form onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) handleSearch(searchQuery); }} className="relative flex-1 mb-1">
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                  type="text"
+                  placeholder={t("sidebar.search_placeholder_hint")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={cn("ps-9 h-9", searchQuery && "pe-8")}
+                  data-search-input
+                  data-tour="search-input"
+              />
+              {searchQuery && (
+                  <button
+                      type="button"
+                      onClick={handleClearSearch}
+                      className="absolute end-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={t("sidebar.clear_search")}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+              )}
+            </form>
             <MiniCalendar
               selectedDate={selectedDate}
               displayMonth={miniMonth}
