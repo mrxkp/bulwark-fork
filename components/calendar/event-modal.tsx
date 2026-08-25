@@ -668,11 +668,11 @@ export function EventModal({
     }
 
     if (effectiveAttendees.length > 0 && currentUserEmails.length > 0) {
-      const organizerEmail = currentUserEmails[0];
       // On create there are no existing participants, so a fresh event would
       // store an empty organizer name — fall back to the contact card.
-      const organizerName =
-        existingParticipants.find(p => p.isOrganizer)?.name || resolveContactName(organizerEmail) || "";
+      const calendar = calendars.find(c => c.id === calendarId);
+      const organizerEmail = currentUserEmails?.find(e => calendar?.name.includes(e)) || currentUserEmails[0];
+      const organizerName = currentUserEmails?.find(e => calendar?.name.includes(e)) || existingParticipants.find(p => p.isOrganizer)?.name || resolveContactName(organizerEmail) || "";;
       data.participants = buildParticipantMap(
         { name: organizerName, email: organizerEmail },
         effectiveAttendees
