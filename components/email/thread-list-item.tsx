@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { spamApplicableIn } from "@/lib/spam-applicable";
 import { cleanPreview, formatDate } from "@/lib/utils";
 import { rowA11yProps, rowLabel } from "./list-a11y";
@@ -1381,6 +1381,12 @@ const ConversationRow = React.forwardRef<HTMLDivElement, ThreadListItemProps>(
     const announceRowPreview = useSettingsStore((state) => state.announceRowPreview);
     const showRowActionButton = useSettingsStore((state) => state.showRowActionButton);
 
+      useEffect(() => {
+          if(isExpanded && expandedEmails && expandedEmails.length > 0) {
+              onEmailSelect(expandedEmails[0]);
+          }
+      }, [expandedEmails, isExpanded]);
+
     const emailsToShow = expandedEmails || thread.emails;
 
     // Toggle selection for all emails in this thread.
@@ -1458,7 +1464,9 @@ const ConversationRow = React.forwardRef<HTMLDivElement, ThreadListItemProps>(
           onCollapseAllThreads?.();
           onToggleExpand();
         }
-        onEmailSelect(latestEmail);
+        if(thread.emails.length <= 1) {
+            onEmailSelect(latestEmail);
+        }
       }
     };
 
