@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { cleanPreview, formatDate } from "@/lib/utils";
 import { formatScheduledSendAt } from "@/lib/scheduled-send-label";
 import { Email, ThreadGroup } from "@/lib/jmap/types";
@@ -971,6 +971,12 @@ export const ThreadListItem = React.forwardRef<HTMLDivElement, ThreadListItemPro
 
     const isChecked = thread.emails.some(e => selectedEmailKeys.has(emailKeyFor(e)));
 
+      useEffect(() => {
+          if(isExpanded && expandedEmails && expandedEmails.length > 0) {
+              onEmailSelect(expandedEmails[0]);
+          }
+      }, [expandedEmails, isExpanded]);
+
     if (emailCount === 1) {
       return (
         <SingleEmailItem
@@ -1058,7 +1064,9 @@ export const ThreadListItem = React.forwardRef<HTMLDivElement, ThreadListItemPro
           onCollapseAllThreads?.();
           onToggleExpand();
         }
-        onEmailSelect(latestEmail);
+        if(thread.emails.length <= 1) {
+            onEmailSelect(latestEmail);
+        }
       }
     };
 
