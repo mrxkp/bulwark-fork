@@ -207,6 +207,75 @@ interface EmailViewerProps {
   className?: string;
 }
 
+const linkifyHtml = (html: string): string => {
+  const urlRegex = /\bhttps?:\/\/[^\s<>"']+/gi;
+  const skipTags = new Set(['A', 'SCRIPT', 'STYLE', 'TEXTAREA', 'IFRAME', 'NOSCRIPT']);
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  function isInsideSkippedAncestor(node: Node): boolean {
+    let el = node.parentElement;
+    while (el) {
+      if (skipTags.has(el.tagName)) return true;
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
+  const textNodes: Text[] = [];
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    if (!isInsideSkippedAncestor(node)) {
+      textNodes.push(node as Text);
+    }
+  }
+
+  for (const textNode of textNodes) {
+    const text = textNode.textContent ?? '';
+    urlRegex.lastIndex = 0;
+    if (!urlRegex.test(text)) continue;
+    urlRegex.lastIndex = 0;
+
+    const fragment = doc.createDocumentFragment();
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = urlRegex.exec(text)) !== null) {
+      const url = match[0];
+      const start = match.index;
+
+      if (start > lastIndex) {
+        fragment.appendChild(doc.createTextNode(text.slice(lastIndex, start)));
+      }
+
+      const trailingPunctMatch = url.match(/[.,;:!?)\]]+$/);
+      const cleanUrl = trailingPunctMatch ? url.slice(0, -trailingPunctMatch[0].length) : url;
+      const trailing = trailingPunctMatch ? trailingPunctMatch[0] : '';
+
+      const anchor = doc.createElement('a');
+      anchor.href = cleanUrl;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = cleanUrl;
+      fragment.appendChild(anchor);
+
+      if (trailing) fragment.appendChild(doc.createTextNode(trailing));
+
+      lastIndex = start + url.length;
+    }
+
+    if (lastIndex < text.length) {
+      fragment.appendChild(doc.createTextNode(text.slice(lastIndex)));
+    }
+
+    textNode.parentNode?.replaceChild(fragment, textNode);
+  }
+
+  return doc.body.innerHTML;
+}
+
 // Helper function to get file icon based on mime type or extension
 const getFileIcon = (name?: string, type?: string) => {
   const ext = name?.split('.').pop()?.toLowerCase();
@@ -2443,7 +2512,8 @@ export function EmailViewer({
     if (embeddedEmailText) {
       return { html: plainToHtml(embeddedEmailText), isHtml: false, hasStyleTag: false, externalBlocked: false };
     }
-    return emailContent;
+    return {...emailContent, html: linkifyHtml(emailContent.html)};
+    // return emailContent;
     // `hasBlockedContent` is only read to avoid a redundant setState; including
     // it would re-run the whole sanitize pass the moment the banner appears.
     // eslint-disable-next-line react-hooks/exhaustive-deps
