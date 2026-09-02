@@ -189,7 +189,7 @@ interface EmailViewerProps {
 }
 
 const linkifyHtml = (html: string): string => {
-  const urlRegex = /\bhttps?:\/\/[^\s<>"']+/gi;
+  const urlRegex = /\bhttps?:\/\/[^\s<>"']+|\bwww\.[^\s<>"']+/gi;
   const skipTags = new Set(['A', 'SCRIPT', 'STYLE', 'TEXTAREA', 'IFRAME', 'NOSCRIPT']);
 
   const parser = new DOMParser();
@@ -235,8 +235,10 @@ const linkifyHtml = (html: string): string => {
       const cleanUrl = trailingPunctMatch ? url.slice(0, -trailingPunctMatch[0].length) : url;
       const trailing = trailingPunctMatch ? trailingPunctMatch[0] : '';
 
+      const href = cleanUrl.startsWith('www.') ? `https://${cleanUrl}` : cleanUrl;
+
       const anchor = doc.createElement('a');
-      anchor.href = cleanUrl;
+      anchor.href = href;
       anchor.target = '_blank';
       anchor.rel = 'noopener noreferrer';
       anchor.textContent = cleanUrl;
