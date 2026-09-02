@@ -1,6 +1,7 @@
 services:
   webmail:
-    image: ghcr.io/bulwarkmail/webmail:latest
+    build:
+      context: .
     ports:
       - "3000:3000"
     environment:
