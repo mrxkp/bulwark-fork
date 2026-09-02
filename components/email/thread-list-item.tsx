@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, {useCallback, useEffect} from "react";
 import { formatDate, formatDateTime, stripInvisibleLeading } from "@/lib/utils";
 import { Email, ThreadGroup } from "@/lib/jmap/types";
 import { cn } from "@/lib/utils";
@@ -614,6 +614,12 @@ export const ThreadListItem = React.forwardRef<HTMLDivElement, ThreadListItemPro
 
     const isChecked = thread.emails.some(e => selectedEmailIds.has(e.id));
 
+      useEffect(() => {
+          if(isExpanded && expandedEmails && expandedEmails.length > 0) {
+              onEmailSelect(expandedEmails[0]);
+          }
+      }, [expandedEmails, isExpanded]);
+
     if (emailCount === 1) {
       return (
         <SingleEmailItem
@@ -688,7 +694,9 @@ export const ThreadListItem = React.forwardRef<HTMLDivElement, ThreadListItemPro
           onCollapseAllThreads?.();
           onToggleExpand();
         }
-        onEmailSelect(latestEmail);
+        if(thread.emails.length <= 1) {
+            onEmailSelect(latestEmail);
+        }
       }
     };
 
