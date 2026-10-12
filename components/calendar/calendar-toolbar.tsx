@@ -3,15 +3,31 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Plus, Upload, CalendarDays, Globe, ChevronDown, ArrowLeft, Menu, MoreVertical } from "@/components/icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Upload,
+  CalendarDays,
+  Globe,
+  ChevronDown,
+  ArrowLeft,
+  Menu,
+  MoreVertical,
+  Search, X
+} from "@/components/icons";
 import { startOfWeek } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { CalendarViewMode } from "@/stores/calendar-store";
 import type { Calendar } from "@/lib/jmap/types";
 import { useCalendarLocale } from "@/hooks/use-calendar-locale";
 import { displayNow } from "@/lib/timezone";
+import {MiniCalendar} from "@/components/calendar/mini-calendar";
+import {Input} from "@/components/ui/input";
 
 interface CalendarToolbarProps {
+  searchQuery: string,
+  setSearchQuery: (searchQuery: string) => void,
   selectedDate: Date;
   /** Day at the top / start of the scrolled view, when it differs from the selection. */
   visibleDate?: Date | null;
@@ -51,6 +67,8 @@ const VIEW_SHORTCUTS: Record<CalendarViewMode, string> = {
 };
 
 export function CalendarToolbar({
+  searchQuery,
+  setSearchQuery,
   selectedDate,
   visibleDate,
   viewMode,
@@ -170,7 +188,13 @@ export function CalendarToolbar({
     };
   }, [showViewMenu, showImportDropdown]);
 
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+  };
 
+  const handleClearSearch = async () => {
+    setSearchQuery("");
+  };
 
   if (isMobile) {
     return (
@@ -358,6 +382,30 @@ export function CalendarToolbar({
           <Plus className="w-4 h-4" />
         </Button>
       )}
+
+      <form onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) handleSearch(searchQuery); }} className="relative">
+        <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+            type="text"
+            placeholder={t("sidebar.search_placeholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={cn("ps-9 h-9", searchQuery && "pe-8")}
+            data-search-input
+            data-tour="search-input"
+        />
+        {searchQuery && (
+            <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute end-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={t("sidebar.clear_search")}
+            >
+              <X className="w-4 h-4" />
+            </button>
+        )}
+      </form>
+
       <Button
         variant="outline"
         size="sm"
