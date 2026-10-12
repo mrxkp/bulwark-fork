@@ -645,7 +645,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     setShowEventModal(false);
     setEditEvent(null);
     setPendingPreview(null);
-    setDefaultCalendarIdForCreate(undefined);
     setDefaultModalAllDay(false);
   }, []);
 
@@ -1028,7 +1027,6 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
     if (!quickDraft) return;
     const draft = quickDraft;
     openCreateModal(draft.start, draft.end);
-    setDefaultCalendarIdForCreate(draft.calendarId || undefined);
     setDefaultModalTitle(draft.title || undefined);
   }, [quickDraft, openCreateModal]);
 
