@@ -871,8 +871,10 @@ export function EventModal({
     // on one occurrence it is no move. Someone else's event keeps its
     // participants as its organizer sent them.
     if (userIsOrganizer) {
+      const calendar = calendars.find(c => c.id === calendarId);
+
       Object.assign(data, participantFieldsToSave(event, effectiveAttendees, {
-        userEmail: currentUserEmails[0],
+        userEmail: currentUserEmails?.find(e => calendar?.name.includes(e)) || currentUserEmails[0],
         userEmails: currentUserEmails,
         resolveName: resolveContactName,
         rescheduled: !!event && (changesWhen(event, { allDay, start, end }) || (ruleChanged && !event.recurrenceId)),
