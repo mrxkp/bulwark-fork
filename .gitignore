@@ -59,6 +59,7 @@ next-env.d.ts
 
 # Sibling repos
 /repos/
+.idea
 
 # Kubernetes reference manifests: the secrets users fill in
 deploy/kubernetes/base/secrets.env
