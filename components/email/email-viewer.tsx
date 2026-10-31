@@ -17,7 +17,6 @@ import { attachmentIcon } from "./attachment-chips";
 import { ReaderViewDialog } from "./reader-view-dialog";
 import { ReadingMask } from "./reading-mask";
 import { collectReferencedCids, isEmbeddedInBody, isReportPart, normalizeCid, rewriteCidReferences } from "@/lib/attachment-visibility";
-import { getAttachmentDisplayName } from "@/lib/attachment-name";
 import { collapsePlainTextQuotes, setupQuoteCollapse } from "@/lib/quote-collapse";
 import { DARK_PENDING_CLASS, applyEmailDarkMode, emailColorScheme, emailDarkModeCss, emailHasNativeDarkMode as htmlHasNativeDarkMode, resolveColorSchemeMedia } from "@/lib/email-dark-mode";
 import { fitEmailBodyWidth, type FitOptions } from "@/lib/email-fit-width";
@@ -277,6 +276,115 @@ interface EmailViewerProps {
   selectedMailbox?: string;
   className?: string;
 }
+
+const MIME_TYPE_LABELS: Record<string, string> = {
+  'application/pdf': 'Document.pdf',
+  'application/zip': 'Archive.zip',
+  'application/x-zip-compressed': 'Archive.zip',
+  'application/gzip': 'Archive.gz',
+  'application/x-rar-compressed': 'Archive.rar',
+  'application/x-7z-compressed': 'Archive.7z',
+  'application/msword': 'Document.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Document.docx',
+  'application/vnd.ms-excel': 'Spreadsheet.xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Spreadsheet.xlsx',
+  'application/vnd.ms-powerpoint': 'Presentation.ppt',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'Presentation.pptx',
+  'text/plain': 'Text.txt',
+  'text/html': 'Document.html',
+  'text/csv': 'Data.csv',
+  'application/json': 'Data.json',
+  'application/xml': 'Data.xml',
+  'application/octet-stream': 'Attachment',
+  'message/rfc822': 'Email.eml',
+};
+
+const linkifyHtml = (html: string): string => {
+  const urlRegex = /\bhttps?:\/\/[^\s<>"']+|\bwww\.[^\s<>"']+/gi;
+  const skipTags = new Set(['A', 'SCRIPT', 'STYLE', 'TEXTAREA', 'IFRAME', 'NOSCRIPT']);
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  function isInsideSkippedAncestor(node: Node): boolean {
+    let el = node.parentElement;
+    while (el) {
+      if (skipTags.has(el.tagName)) return true;
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
+  const textNodes: Text[] = [];
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    if (!isInsideSkippedAncestor(node)) {
+      textNodes.push(node as Text);
+    }
+  }
+
+  for (const textNode of textNodes) {
+    const text = textNode.textContent ?? '';
+    urlRegex.lastIndex = 0;
+    if (!urlRegex.test(text)) continue;
+    urlRegex.lastIndex = 0;
+
+    const fragment = doc.createDocumentFragment();
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = urlRegex.exec(text)) !== null) {
+      const url = match[0];
+      const start = match.index;
+
+      if (start > lastIndex) {
+        fragment.appendChild(doc.createTextNode(text.slice(lastIndex, start)));
+      }
+
+      const trailingPunctMatch = url.match(/[.,;:!?)\]]+$/);
+      const cleanUrl = trailingPunctMatch ? url.slice(0, -trailingPunctMatch[0].length) : url;
+      const trailing = trailingPunctMatch ? trailingPunctMatch[0] : '';
+
+      const href = cleanUrl.startsWith('www.') ? `https://${cleanUrl}` : cleanUrl;
+
+      const anchor = doc.createElement('a');
+      anchor.href = href;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = cleanUrl;
+      fragment.appendChild(anchor);
+
+      if (trailing) fragment.appendChild(doc.createTextNode(trailing));
+
+      lastIndex = start + url.length;
+    }
+
+    if (lastIndex < text.length) {
+      fragment.appendChild(doc.createTextNode(text.slice(lastIndex)));
+    }
+
+    textNode.parentNode?.replaceChild(fragment, textNode);
+  }
+
+  return doc.body.innerHTML;
+}
+
+const getAttachmentDisplayName = (name: string | null | undefined, mimeType?: string): string => {
+  // Without directional overrides, which would show `report‮fdp.exe`
+  // as `reportexe.pdf` (the download name is cleaned separately).
+  if (name) return stripBidiControls(name);
+  if (mimeType) {
+    const label = MIME_TYPE_LABELS[mimeType.toLowerCase()];
+    if (label) return label;
+    const sub = mimeType.split('/')[1];
+    if (sub) {
+      const clean = sub.replace(/^x-/, '').replace(/^vnd\./, '');
+      return `Attachment.${clean}`;
+    }
+  }
+  return 'Attachment';
+};
 
 // Helper function to format recipients with contextual display
 const _formatRecipients = (
@@ -2823,7 +2931,7 @@ export function EmailViewer({
     if (embeddedEmailText) {
       return { html: plainToHtml(embeddedEmailText), isHtml: false, hasStyleTag: false, externalBlocked: false };
     }
-    return emailContent;
+    return {...emailContent, html: linkifyHtml(emailContent.html)};
     // `hasBlockedContent` is only read to avoid a redundant setState; including
     // it would re-run the whole sanitize pass the moment the banner appears.
     // eslint-disable-next-line react-hooks/exhaustive-deps
