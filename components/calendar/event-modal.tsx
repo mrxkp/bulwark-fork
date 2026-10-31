@@ -872,9 +872,9 @@ export function EventModal({
     // participants as its organizer sent them.
     if (userIsOrganizer) {
       const calendar = calendars.find(c => c.id === calendarId);
-
+      const emailFrom = calendar?.accountName || currentUserEmails?.find(e => calendar?.name.includes(e));
       Object.assign(data, participantFieldsToSave(event, effectiveAttendees, {
-        userEmail: currentUserEmails?.find(e => calendar?.name.includes(e)) || currentUserEmails[0],
+        userEmail: emailFrom || currentUserEmails[0],
         userEmails: currentUserEmails,
         resolveName: resolveContactName,
         rescheduled: !!event && (changesWhen(event, { allDay, start, end }) || (ruleChanged && !event.recurrenceId)),
