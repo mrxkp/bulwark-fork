@@ -173,6 +173,7 @@ import { useArchiveActionEnabled } from "@/lib/archive-gate";
 import { useNoThirdPartyTraffic } from "@/hooks/use-third-party-mode";
 import { useSenderWarning } from "@/hooks/use-sender-warning";
 import { BrandVerifiedBadge } from "@/components/email/brand-verified-badge";
+import {stripBidiControls} from "@/lib/bidi";
 
 /** The More menu's two drill-downs: a folder list and a tag list. */
 type MoreMenuSub = MessageSubmenuKey;
