@@ -1218,7 +1218,7 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
       return;
     }
     const finalEnd = end ?? (allDay ? start : new Date(start.getTime() + 60 * 60 * 1000));
-    const preferred = writableCalendars.find((c) => c.isDefault) ?? writableCalendars[0];
+    const preferred = defaultCalendarForNewEvents;
     setShowEventModal(false);
     setEditEvent(null);
     setShowTaskModal(false);
@@ -1231,7 +1231,7 @@ export function CalendarApp({ linkSegments: routeSegments }: CalendarAppProps = 
       allDay,
       calendarId: prev && writableCalendars.some((c) => c.id === prev.calendarId)
         ? prev.calendarId
-        : preferred?.id ?? "",
+        : preferred ?? "",
     }));
   }), [isMobile, openCreateModal, writableCalendars, closeDetail, whenEditorsDiscarded]);
 
