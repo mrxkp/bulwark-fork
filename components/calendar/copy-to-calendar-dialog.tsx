@@ -9,6 +9,7 @@ import { preferredTarget } from "@/lib/calendar-targets";
 import { useAccountStore } from "@/stores/account-store";
 import { useCalendarStore } from "@/stores/calendar-store";
 import type { Calendar } from "@/lib/jmap/types";
+import {useSettingsStore} from "@/stores/settings-store";
 
 /**
  * "Copy to calendar…" for an event the user can't change, such as one from a
@@ -31,8 +32,10 @@ export function CopyToCalendarDialog({
   const tCal = useTranslations("calendar");
   const activeAccountId = useAccountStore((s) => s.activeAccountId);
   const lastEventCalendarIds = useCalendarStore((s) => s.lastEventCalendarIds);
+  const defaultCalendarForNewEvents = useSettingsStore((s) => s.defaultCalendarForNewEvents);
+
   const [calendarId, setCalendarId] = useState(
-    () => preferredTarget(calendars, activeAccountId, lastEventCalendarIds)?.id ?? calendars[0]?.id ?? "",
+    () => preferredTarget(calendars, activeAccountId, defaultCalendarForNewEvents, lastEventCalendarIds)?.id ?? calendars[0]?.id ?? "",
   );
   const target = calendars.find((c) => c.id === calendarId);
   const copy = () => {

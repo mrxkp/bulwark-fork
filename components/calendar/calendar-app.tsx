@@ -1271,7 +1271,6 @@ export function CalendarApp({ linkSegments: routeSegments, surface = "calendar" 
     setEditEvent(null);
     setCopySource(null);
     setPendingPreview(null);
-    setDefaultCalendarIdForCreate(undefined);
     setDefaultModalAllDay(false);
     if (!closedId) return;
     requestAnimationFrame(() => {
@@ -1499,7 +1498,7 @@ export function CalendarApp({ linkSegments: routeSegments, surface = "calendar" 
     }
     const finalEnd = end ?? (allDay ? start : new Date(start.getTime() + 60 * 60 * 1000));
     // The account on screen's calendar, not the first account's (pim-p2-4).
-    const preferred = preferredTarget(writableCalendars, activeLocalAccountId, lastEventCalendarIds);
+    const preferred = preferredTarget(writableCalendars, activeLocalAccountId, defaultCalendarForNewEvents, lastEventCalendarIds);
     setShowEventModal(false);
     setEditEvent(null);
     setShowTaskModal(false);
@@ -1514,7 +1513,7 @@ export function CalendarApp({ linkSegments: routeSegments, surface = "calendar" 
         ? prev.calendarId
         : preferred?.id ?? "",
     }));
-  }), [isMobile, openCreateModal, writableCalendars, closeDetail, whenEditorsDiscarded, activeLocalAccountId, lastEventCalendarIds]);
+  }), [isMobile, openCreateModal, writableCalendars, closeDetail, whenEditorsDiscarded, activeLocalAccountId, defaultCalendarForNewEvents, lastEventCalendarIds]);
 
   // A day in the month view or the all-day row: an all-day event, the same
   // quick editor as a slot in week and day view.
@@ -1620,7 +1619,6 @@ export function CalendarApp({ linkSegments: routeSegments, surface = "calendar" 
   const handleDuplicateEvent = useCallback((event: CalendarEvent) => whenEditorsDiscarded(() => {
     const primary = getPrimaryCalendarId(event);
     const calendar = calendars.find((c) => c.id === primary);
-    setDefaultCalendarIdForCreate(calendar && !calendar.isTasksOnly && canCreateEventsIn(calendar, isSubscriptionCalendar) ? calendar.id : undefined);
     setEditEvent(null);
     setCopySource(event);
     setModalStartsInEdit(true);
@@ -2654,7 +2652,6 @@ export function CalendarApp({ linkSegments: routeSegments, surface = "calendar" 
         }}
         onShareCalendar={client ? (cal) => setSharingCalendarId(cal.id) : undefined}
         onCreateEvent={(cal: Calendar) => {
-          setDefaultCalendarIdForCreate(cal.id);
           openCreateModal();
         }}
         onClearCalendar={client ? async (cal: Calendar) => {

@@ -1381,12 +1381,6 @@ const ConversationRow = React.forwardRef<HTMLDivElement, ThreadListItemProps>(
     const announceRowPreview = useSettingsStore((state) => state.announceRowPreview);
     const showRowActionButton = useSettingsStore((state) => state.showRowActionButton);
 
-      useEffect(() => {
-          if(isExpanded && expandedEmails && expandedEmails.length > 0) {
-              onEmailSelect(expandedEmails[0]);
-          }
-      }, [expandedEmails, isExpanded]);
-
     const emailsToShow = expandedEmails || thread.emails;
 
     // Toggle selection for all emails in this thread.

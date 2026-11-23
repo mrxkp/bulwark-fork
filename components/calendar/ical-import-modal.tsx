@@ -44,7 +44,9 @@ export function ICalImportModal({ calendars: allCalendars, client, onClose, init
   const rememberEventCalendar = useCalendarStore((s) => s.rememberEventCalendar);
   // The account on screen's calendar, the one last picked there first (pim-p2-4).
   const lastEventCalendarIds = useCalendarStore((s) => s.lastEventCalendarIds);
-  const preferredId = () => preferredTarget(calendars, activeLocalAccountId, lastEventCalendarIds)?.id ?? "";
+  const defaultCalendarForNewEvents = useSettingsStore((s) => s.defaultCalendarForNewEvents);
+
+  const preferredId = () => preferredTarget(calendars, activeLocalAccountId, defaultCalendarForNewEvents, lastEventCalendarIds)?.id ?? "";
   const t = useTranslations("calendar.import");
   const tLaunch = useTranslations("pwaLaunch");
   const tCal = useTranslations("calendar");

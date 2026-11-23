@@ -128,17 +128,22 @@ function ofAccount(cal: Calendar, activeAccountId: string | null | undefined): b
 export function preferredTarget(
   targets: Calendar[],
   activeAccountId: string | null | undefined,
+  defaultCalendarForNewEvents: string | undefined,
   lastPicked?: Record<string, string>,
 ): Calendar | undefined {
   const accountKey = targets.some((c) => c.localAccountId) ? (activeAccountId ?? '') : '';
   const remembered = lastPicked?.[accountKey];
   const mine = targets.filter((c) => ofAccount(c, activeAccountId));
-  return (remembered ? mine.find((c) => c.id === remembered) : undefined)
-    ?? mine.find((c) => c.isDefault && !c.isShared)
-    ?? mine.find((c) => !c.isShared)
-    ?? mine[0]
-    ?? targets.find((c) => c.isDefault)
-    ?? targets[0];
+  if(defaultCalendarForNewEvents && mine.find(c => c.id === defaultCalendarForNewEvents)) {
+    return mine.find((c) => c.id === defaultCalendarForNewEvents);
+  } else {
+    return (remembered ? mine.find((c) => c.id === remembered) : undefined)
+        ?? mine.find((c) => c.isDefault && !c.isShared)
+        ?? mine.find((c) => !c.isShared)
+        ?? mine[0]
+        ?? targets.find((c) => c.isDefault)
+        ?? targets[0];
+  }
 }
 
 /** The key `preferredTarget` remembers a pick under. */
