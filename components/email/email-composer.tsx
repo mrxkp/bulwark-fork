@@ -6578,14 +6578,17 @@ export function EmailComposer({
                       return <TypeIcon className={cn("w-3.5 h-3.5 flex-shrink-0", typeIconClass)} aria-hidden />;
                     })()}
                     {canPreview ? (
-                      <button
-                        type="button"
-                        onClick={() => setPreviewAttachment(att)}
-                        title={att.name}
-                        className="flex items-center gap-2 min-w-0 hover:underline"
-                      >
-                        {label}
-                      </button>
+                        <>
+                          <div className="flex items-center gap-2 min-w-0">{label}</div>
+                          <button
+                              type="button"
+                              onClick={() => setPreviewAttachment(att)}
+                              title={att.name}
+                              className="p-1 hover:bg-accent rounded transition-colors"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-foreground" />
+                          </button>
+                        </>
                     ) : (
                       <div className="flex items-center gap-2 min-w-0">{label}</div>
                     )}

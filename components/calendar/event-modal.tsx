@@ -505,12 +505,13 @@ export function EventModal({
   // picked there, else its default one. Never a task list (pim-p2-2).
   const activeLocalAccountId = useAccountStore((s) => s.activeAccountId);
   const lastEventCalendarIds = useCalendarStore((s) => s.lastEventCalendarIds);
+  const defaultCalendarForNewEvents = useSettingsStore((s) => s.defaultCalendarForNewEvents);
   const [calendarId, setCalendarId] = useState<string>(() => {
     if (event?.calendarIds) return getPrimaryCalendarId(event) || calendars[0]?.id || "";
     const targets = eventTargets(calendars, isSubscriptionCalendar);
     if (defaultCalendarId && targets.some(c => c.id === defaultCalendarId)) return defaultCalendarId;
     // Never default new events into a subscription / read-only calendar (#762).
-    return preferredTarget(targets, activeLocalAccountId, lastEventCalendarIds)?.id
+    return preferredTarget(targets, activeLocalAccountId, defaultCalendarForNewEvents, lastEventCalendarIds)?.id
       || calendars[0]?.id || "";
   });
 
