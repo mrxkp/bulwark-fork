@@ -134,8 +134,8 @@ export function preferredTarget(
   const accountKey = targets.some((c) => c.localAccountId) ? (activeAccountId ?? '') : '';
   const remembered = lastPicked?.[accountKey];
   const mine = targets.filter((c) => ofAccount(c, activeAccountId));
-  if(defaultCalendarForNewEvents && mine.find(c => c.id === defaultCalendarForNewEvents)) {
-    return mine.find((c) => c.id === defaultCalendarForNewEvents);
+  if(defaultCalendarForNewEvents && targets.find(c => c.id === defaultCalendarForNewEvents)) {
+    return targets.find((c) => c.id === defaultCalendarForNewEvents);
   } else {
     return (remembered ? mine.find((c) => c.id === remembered) : undefined)
         ?? mine.find((c) => c.isDefault && !c.isShared)
